@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>カロリー管理（渡邊）</title>
+<script src="js/jquery-2.1.3.min.js"></script>
+<link rel="stylesheet" href="css/sample cal.css">
+</head>
+<body>
+<header>
+<h1>カロリー管理</h1>
+</header>
+<main>
+    　★目標カロリー 1日<input type="number" id="mokuhyou"> kcal以内
+    <div>　　食べたら入力！↓↓↓</div>
+    <input type="number" id="calinput"> kcal
+    
+    <button type="button" id="inputbtn">インプット</button><br>
+    <br>
+    　今日の摂取カロリー合計　<output type="number" id="goukei"></output>kcal
+    <div id="hantei">　セーフ！</div>
+    <br>
+    <div>　記録化</div>
+    <input type="date" id="today">
+    <button type="button" id="kirokuka">記録化する！</button>
+
+    <br>
+    <button type="button" id="reset">リセットボタン</button>
+    <br>
+
+
+</main>
+<table id="list">
+<!-- ここに追加データが挿入される -->
+</table>
+<script>
+//localStorage.setItem("合計",0) //合計がバグったら稼働させる
+
+//localStorage.clear()  //ローカルストレージ消す時、稼働させる
+
+//ページ更新時の目標カロリーセット
+$("#mokuhyou").val(localStorage.getItem("目標"));
+    
+//ページ更新時の合計カロリー表示
+let goukeical=localStorage.getItem("合計");
+$("#goukei").html(goukeical);
+
+//目標カロリー書き換えイベント
+$("#mokuhyou").on("input",function(){
+    localStorage.setItem("目標",mokuhyou.value);
+    goukeical=parseInt(goukeical,10);
+    if(goukeical>mokuhyou.value){
+        $("#hantei").text("　アウト！");
+        }else{$("#hantei").text("　セーフ！")};
+})
+
+//ページ更新時のセーフアウト判定
+
+goukeical=parseInt(goukeical,10)
+if(goukeical>mokuhyou.value){
+        $("#hantei").text("　アウト！");
+        }
+if(goukeical>mokuhyou.value){
+    $("#hantei").css("color","red")
+}
+
+//let kaisuu=1;
+
+//インプットボタン クリックイベント
+$("#inputbtn").on("click",function() {
+    //const key=kaisuu;
+    const value=$("#calinput").val();
+    //localStorage.setItem(key,value);
+    //kaisuu=kaisuu+1;
+    let goukeical=localStorage.getItem("合計");
+    goukeical=parseInt(goukeical,10)+ parseInt(value,10);
+    $("#goukei").text(goukeical);
+    localStorage.setItem("合計",goukeical);
+    if(goukeical>mokuhyou.value){
+        $("#hantei").text("　アウト！");
+        $("#hantei").css("color","red");
+        }else{$("#hantei").text("　セーフ！");
+        $("#hantei").css("color","blue")
+        };
+    $("#calinput").val(0);
+    //return kaisuu;
+})
+
+
+//記録化する！ボタン クリックイベント
+$("#kirokuka").on("click",function(){
+    const key=$("#today").val();
+    const value=$("#goukei").val();
+    localStorage.setItem(key,value);
+    const html = '<tr><th>'+key+'</th><td>'+value+"　kcal"+'</td></tr>';
+    $("#list").prepend(html);
+    localStorage.setItem("合計",0);
+    $("#goukei").text(0);
+    $("#hantei").text("　セーフ！");
+    $("#hantei").css("color","blue");
+    $("#today").val(0);
+    $("#calinput").val(0)
+})
+
+//ページ読み込み：過去の記録呼び出し
+localStorage.removeItem("目標");
+let horyugoukei=localStorage.getItem("合計");
+localStorage.removeItem("合計");
+for(let i=0; i<(localStorage.length); i++){
+    const key   = localStorage.key(i);
+    const value = localStorage.getItem(key);
+    const html = '<tr><th>'+key+'</th><td>'+value+"　kcal"+'</td></tr>';
+    $("#list").append(html);    
+    //const 目標key=localStorage.key(目標);
+}
+localStorage.setItem("目標",mokuhyou.value);
+localStorage.setItem("合計",horyugoukei);
+
+//リセットボタン　クリックイベント
+$("#reset").on("click",function(){
+    localStorage.clear();
+    $("#list").empty();
+    localStorage.setItem("合計",0); 
+    localStorage.setItem("目標",0);
+    $("#goukei").text(0);
+    $("#mokuhyou").val(localStorage.getItem("目標"));
+    $("#calinput").val(0);
+    $("#hantei").text("　セーフ！");
+    $("#hantei").css("color","blue");
+    $("#today").val(0);
+});
+
+
+
+
+
+</script>
+<footer><small>G's</small></footer>
+</body>
+</html>
